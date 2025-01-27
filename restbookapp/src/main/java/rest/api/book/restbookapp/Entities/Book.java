@@ -11,6 +11,7 @@ public class Book {
 
     private int bookPrice;
 
+
     public Book(int bookId, String bookName, String bookAuthorName, int bookPrice) {
         this.bookId = bookId;
         this.bookName = bookName;
