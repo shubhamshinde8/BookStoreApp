@@ -24,7 +24,6 @@ public class BookController {
 
     @GetMapping("/books")
     public List<Book> getBooks(){
-        
         List<Book> book=bookServices.getAllBooks();
         return book;
     }
@@ -32,12 +31,12 @@ public class BookController {
 
     @GetMapping("/books/{id}")
     public Book getbook(@PathVariable("id") int id) {
-        return bookServices.getBook(id);
+        return bookServices.getBookById(id);
     }
 
     @PostMapping("/books")
     public Book addBook(@RequestBody Book book){
-        Book b=this.bookServices.sendBook(book);
+        Book b=this.bookServices.addBook(book);
         return b;
     }
 
