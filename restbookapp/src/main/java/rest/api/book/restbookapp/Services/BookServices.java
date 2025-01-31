@@ -1,7 +1,9 @@
 package rest.api.book.restbookapp.Services;
 
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import rest.api.book.restbookapp.Entities.Book;
@@ -21,7 +23,13 @@ public class BookServices {
     }
 
     public Book getBookById(int id){
-        Book b=this.bookRepository.findByBookId(id);
+
+        Book b=null;
+        try {
+            b = this.bookRepository.findByBookId(id);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return b;
     }
 
@@ -34,11 +42,31 @@ public class BookServices {
         this.bookRepository.deleteById(id);
     }
 
-    public void updateBook(Book book,int id){
-        book.setBookId(id);
-        this.bookRepository.save(book);
+//    public void updateBook(Book book,int id){
+//        book.setBookId(id);
+//        this.bookRepository.save(book);
+//    }
+
+    @Transactional
+    public void updateBook(int bookId, Book updatedBookData) {
+        try {
+            Book book = bookRepository.findById(bookId)
+                    .orElseThrow(() -> new RuntimeException("Book not found"));
+
+            book.setBookName(updatedBookData.getBookName());
+            book.setBookPrice(updatedBookData.getBookPrice());
+            book.setAuthor(updatedBookData.getAuthor());
+
+            bookRepository.save(book);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            System.out.println("Optimistic Locking Failure: " + e.getMessage());
+            throw new RuntimeException("Another user has modified this book. Please retry.");
+        }
     }
 
+    public long cnt(){
+        return this.bookRepository.count();
+    }
 
 
 

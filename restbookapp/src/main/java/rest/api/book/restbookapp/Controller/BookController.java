@@ -1,8 +1,12 @@
 package rest.api.book.restbookapp.Controller;
 
 import java.util.List;
+import java.util.Optional;
 
+import jakarta.persistence.CacheRetrieveMode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,21 +27,31 @@ public class BookController {
     public BookServices bookServices;
 
     @GetMapping("/books")
-    public List<Book> getBooks(){
+    public ResponseEntity<List<Book>> getBooks(){
         List<Book> book=bookServices.getAllBooks();
-        return book;
+        if (book.size()<=0){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.of(Optional.of(book));
     }
 
 
     @GetMapping("/books/{id}")
-    public Book getbook(@PathVariable("id") int id) {
-        return bookServices.getBookById(id);
+    public ResponseEntity<Book> getbook(@PathVariable("id") int id) {
+        Book book=bookServices.getBookById(id);
+        if(book==null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.of(Optional.of(book));
     }
 
     @PostMapping("/books")
-    public Book addBook(@RequestBody Book book){
+    public ResponseEntity<Book> addBook(@RequestBody Book book){
         Book b=this.bookServices.addBook(book);
-        return b;
+        if(b==null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/books/{id}")
@@ -47,7 +61,13 @@ public class BookController {
 
     @PutMapping("/books/{id}")
     public Book updateBook(@RequestBody Book book,@PathVariable("id") int id){
-        this.bookServices.updateBook(book,id);
+        this.bookServices.updateBook(id,book);
         return book;
     }
+
+    @GetMapping("books/cnt")
+    public long checkCnt(){
+       return this.bookServices.cnt();
+    }
+
 }

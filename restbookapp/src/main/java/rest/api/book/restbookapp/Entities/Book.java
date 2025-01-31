@@ -1,36 +1,34 @@
 package rest.api.book.restbookapp.Entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.annotation.Generated;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "bookstore")
 public class Book {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int bookId;
 
     private String bookName;
 
-    private String bookAuthorName;
-
-    @JsonProperty("bookPrice")
     private int bookPrice;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private Author author;
 
-    public Book(int bookId, String bookName, String bookAuthorName, int bookPrice) {
+    @Version  // Enables optimistic locking
+    private int version;
+
+
+
+    public Book(int bookId, String bookName, int bookPrice, Author author) {
         this.bookId = bookId;
         this.bookName = bookName;
-        this.bookAuthorName = bookAuthorName;
-
-
         this.bookPrice = bookPrice;
+        this.author = author;
     }
 
     
@@ -56,13 +54,7 @@ public class Book {
         this.bookName = bookName;
     }
 
-    public String getBookAuthorName() {
-        return bookAuthorName;
-    }
 
-    public void setBookAuthorName(String bookAuthorName) {
-        this.bookAuthorName = bookAuthorName;
-    }
 
     public int getBookPrice() {
         return bookPrice;
@@ -72,14 +64,30 @@ public class Book {
         this.bookPrice = bookPrice;
     }
 
+    public Author getAuthor() {
+        return author;
+    }
 
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 
     @Override
     public String toString() {
-        return "Book [bookId=" + bookId + ", bookName=" + bookName + ", bookAuthorName=" + bookAuthorName
-                + ", bookPrice=" + bookPrice + "]";
+        return "rest.api.book.restbookapp.Entities.Book{" +
+                "bookId=" + bookId +
+                ", bookName='" + bookName + '\'' +
+                ", bookPrice=" + bookPrice +
+                ", author=" + author +
+                ", version=" + version +
+                '}';
     }
-
-    
-    
 }
